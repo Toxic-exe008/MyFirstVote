@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // ═══════════════════════════════════════════════
 // DATABASE
 // ═══════════════════════════════════════════════
-mongoose.connect("mongodb://127.0.0.1:27017/issueTrackerDB")
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.error("❌ MongoDB error:", err));
 
