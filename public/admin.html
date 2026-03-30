@@ -3,102 +3,104 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel — VoteSmart Mumbai</title>
+  <title>Admin Panel &mdash; MyFirstVote</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
 <div id="adminApp">
 
-  <!-- ══════════════════════════════════════════
+  <!-- ════════════════════════════════════
        LOGIN SCREEN
-  ══════════════════════════════════════════ -->
+  ════════════════════════════════════ -->
   <div id="loginScreen" class="admin-login">
     <div class="login-box">
-      <h1>⚙️ VoteSmart Admin</h1>
+      <h1>&#9881;&#65039; MyFirstVote Admin</h1>
       <p>Enter your admin password to access the control panel</p>
-      <input type="password" id="loginPassword" class="admin-input" placeholder="Admin password…" />
-      <div id="loginError" style="color:#f87171;font-size:.82rem;margin-bottom:10px;display:none">Incorrect password. Try again.</div>
+      <input type="password" id="loginPassword" class="admin-input" placeholder="Admin password&hellip;" />
+      <div id="loginError" style="color:#f87171;font-size:.82rem;margin-bottom:10px;display:none">
+        Incorrect password. Please try again.
+      </div>
       <button class="admin-btn" onclick="doLogin()">Sign In</button>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════
-       MAIN LAYOUT (hidden until logged in)
-  ══════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════
+       ADMIN LAYOUT (shown after login)
+  ════════════════════════════════════ -->
   <div id="adminLayout" class="admin-layout" style="display:none">
 
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
       <div class="admin-sidebar-logo">
-        <span>VoteSmart Admin</span>
-        <small>Mumbai 2024</small>
+        <span>MyFirstVote Admin</span>
+        <small>Mumbai 2026</small>
       </div>
       <nav class="admin-nav">
         <div class="admin-nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
-          📊 <span>Dashboard</span>
+          &#128202; <span>Dashboard</span>
         </div>
         <div class="admin-nav-item" data-section="candidates" onclick="showSection('candidates')">
-          👤 <span>Candidates</span>
+          &#128100; <span>Candidates</span>
         </div>
         <div class="admin-nav-item" data-section="parties" onclick="showSection('parties')">
-          🏛️ <span>Parties</span>
+          &#127963;&#65039; <span>Parties</span>
         </div>
         <div class="admin-nav-item" data-section="reports" onclick="showSection('reports')">
-          🚩 <span>Reports</span>
+          &#128681; <span>Reports</span>
           <span class="badge" id="pendingBadge" style="display:none">0</span>
         </div>
         <div class="admin-nav-item" data-section="notices" onclick="showSection('notices')">
-          📢 <span>Election Notices</span>
+          &#128226; <span>Notices</span>
         </div>
         <div class="admin-nav-item" data-section="audit" onclick="showSection('audit')">
-          📋 <span>Audit Log</span>
+          &#128203; <span>Audit Log</span>
         </div>
       </nav>
       <div class="admin-logout">
-        <button onclick="doLogout()">⬅ Logout</button>
+        <button onclick="doLogout()">&#8592; Logout</button>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN AREA -->
     <main class="admin-main">
 
       <!-- DASHBOARD -->
       <div id="sec-dashboard" class="admin-section">
         <div class="admin-main-header">
-          <h2>📊 Dashboard</h2>
-          <a href="index.html" target="_blank" style="font-size:.82rem;color:#94a3b8;display:inline-flex;align-items:center;gap:5px">
-            View public site ↗
-          </a>
+          <h2>&#128202; Dashboard</h2>
+          <a href="index.html" target="_blank" style="font-size:.82rem;color:#94a3b8">View public site &#8599;</a>
         </div>
         <div class="admin-stats-grid" id="dashStats">
-          <div class="admin-stat-card"><div class="stat-val">—</div><div class="stat-label">Candidates</div></div>
-          <div class="admin-stat-card"><div class="stat-val">—</div><div class="stat-label">Parties</div></div>
-          <div class="admin-stat-card"><div class="stat-val">—</div><div class="stat-label">Total Reports</div></div>
-          <div class="admin-stat-card"><div class="stat-val" style="color:#f87171">—</div><div class="stat-label">Pending Reports</div></div>
-          <div class="admin-stat-card"><div class="stat-val">—</div><div class="stat-label">Audit Entries</div></div>
+          <div class="admin-stat-card"><div class="stat-val">&mdash;</div><div class="stat-label">Candidates</div></div>
+          <div class="admin-stat-card"><div class="stat-val">&mdash;</div><div class="stat-label">Parties</div></div>
+          <div class="admin-stat-card"><div class="stat-val">&mdash;</div><div class="stat-label">Total Reports</div></div>
+          <div class="admin-stat-card"><div class="stat-val" style="color:#f87171">&mdash;</div><div class="stat-label">Pending Reports</div></div>
+          <div class="admin-stat-card"><div class="stat-val">&mdash;</div><div class="stat-label">Audit Entries</div></div>
         </div>
         <div style="background:#1a1f2e;border:1px solid #2d3548;border-radius:12px;padding:24px">
-          <div style="font-size:.88rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px">Recent Audit Activity</div>
-          <div id="dashRecentLogs" style="font-size:.83rem;color:#64748b">Loading…</div>
+          <div style="font-size:.82rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px">
+            Recent Audit Activity
+          </div>
+          <div id="dashRecentLogs" style="color:#64748b;font-size:.83rem">Loading&hellip;</div>
         </div>
       </div>
 
       <!-- CANDIDATES -->
       <div id="sec-candidates" class="admin-section" style="display:none">
         <div class="admin-main-header">
-          <h2>👤 Candidates</h2>
-          <button class="admin-add-btn" onclick="openCandidateModal()">＋ Add Candidate</button>
+          <h2>&#128100; Candidates</h2>
+          <button class="admin-add-btn" onclick="openCandidateModal()">&#43; Add Candidate</button>
         </div>
         <div class="admin-table-wrap">
           <table class="admin-table">
             <thead>
               <tr>
-                <th>Name</th><th>Party</th><th>Constituency</th><th>Assets (Total)</th><th>Cases</th><th>Actions</th>
+                <th>Name</th><th>Party</th><th>Constituency</th>
+                <th>Total Assets</th><th>Cases</th><th>Actions</th>
               </tr>
             </thead>
             <tbody id="candidatesTableBody">
-              <tr><td colspan="6" style="text-align:center;color:#64748b;padding:32px">Loading…</td></tr>
+              <tr><td colspan="6" style="text-align:center;color:#64748b;padding:32px">Loading&hellip;</td></tr>
             </tbody>
           </table>
         </div>
@@ -107,8 +109,8 @@
       <!-- PARTIES -->
       <div id="sec-parties" class="admin-section" style="display:none">
         <div class="admin-main-header">
-          <h2>🏛️ Parties</h2>
-          <button class="admin-add-btn" onclick="openPartyModal()">＋ Add Party</button>
+          <h2>&#127963;&#65039; Parties</h2>
+          <button class="admin-add-btn" onclick="openPartyModal()">&#43; Add Party</button>
         </div>
         <div class="admin-table-wrap">
           <table class="admin-table">
@@ -116,7 +118,7 @@
               <tr><th>Name</th><th>Abbreviation</th><th>Type</th><th>Founded</th><th>Actions</th></tr>
             </thead>
             <tbody id="partiesTableBody">
-              <tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px">Loading…</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px">Loading&hellip;</td></tr>
             </tbody>
           </table>
         </div>
@@ -125,23 +127,22 @@
       <!-- REPORTS -->
       <div id="sec-reports" class="admin-section" style="display:none">
         <div class="admin-main-header">
-          <h2>🚩 User Reports</h2>
-          <div style="display:flex;gap:8px">
-            <select id="reportFilter" onchange="loadReports()" class="admin-input" style="width:auto;padding:8px 12px;margin:0">
-              <option value="">All Reports</option>
-              <option value="pending">Pending</option>
-              <option value="reviewed">Reviewed</option>
-              <option value="resolved">Resolved</option>
-            </select>
-          </div>
+          <h2>&#128681; User Reports</h2>
+          <select id="reportFilter" onchange="loadReports()"
+            style="background:#0f1117;border:1.5px solid #2d3548;color:#e2e8f0;padding:8px 12px;border-radius:6px;font-family:inherit;font-size:.84rem">
+            <option value="">All Reports</option>
+            <option value="pending">Pending</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="resolved">Resolved</option>
+          </select>
         </div>
         <div class="admin-table-wrap">
           <table class="admin-table">
             <thead>
-              <tr><th>Date</th><th>Candidate</th><th>Message</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Date</th><th>Report ID</th><th>Candidate / Party</th><th>Message</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody id="reportsTableBody">
-              <tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px">Loading…</td></tr>
+              <tr><td colspan="6" style="text-align:center;color:#64748b;padding:32px">Loading&hellip;</td></tr>
             </tbody>
           </table>
         </div>
@@ -150,8 +151,12 @@
       <!-- ELECTION NOTICES -->
       <div id="sec-notices" class="admin-section" style="display:none">
         <div class="admin-main-header">
-          <h2>📢 Election Notices (Marquee)</h2>
-          <button class="admin-add-btn" onclick="openNoticeModal()">＋ Add Notice</button>
+          <h2>&#128226; Election Notices (Marquee)</h2>
+          <button class="admin-add-btn" onclick="openNoticeModal()">&#43; Add Notice</button>
+        </div>
+        <div style="background:#0f2a0f;border:1px solid #1a4d1a;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:.82rem;color:#6ee7b7">
+          &#9432; The active notice appears in the homepage marquee bar. Only one notice can be active at a time.
+          Changes take effect immediately on the next page load.
         </div>
         <div class="admin-table-wrap">
           <table class="admin-table">
@@ -159,7 +164,7 @@
               <tr><th>Title</th><th>Election Date</th><th>Voting Time</th><th>Active</th><th>Actions</th></tr>
             </thead>
             <tbody id="noticesTableBody">
-              <tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px">Loading…</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:#64748b;padding:32px">Loading&hellip;</td></tr>
             </tbody>
           </table>
         </div>
@@ -168,18 +173,18 @@
       <!-- AUDIT LOG -->
       <div id="sec-audit" class="admin-section" style="display:none">
         <div class="admin-main-header">
-          <h2>📋 Audit Log</h2>
-          <span style="font-size:.82rem;color:#64748b">Last 200 entries • Auto-recorded</span>
+          <h2>&#128203; Audit Log</h2>
+          <span style="font-size:.82rem;color:#64748b">Last 200 entries &mdash; auto-recorded</span>
         </div>
         <div class="admin-table-wrap">
           <div style="display:grid;grid-template-columns:140px 80px 1fr 90px;gap:12px;padding:10px 16px;background:#252b3b;border-bottom:1px solid #2d3548">
-            <span style="font-size:.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px">Date & Time</span>
+            <span style="font-size:.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px">Date &amp; Time</span>
             <span style="font-size:.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px">Action</span>
             <span style="font-size:.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px">Details</span>
             <span style="font-size:.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px">Entity</span>
           </div>
           <div id="auditLogBody" style="max-height:600px;overflow-y:auto">
-            <div style="padding:32px;text-align:center;color:#64748b;font-size:.83rem">Loading…</div>
+            <div style="padding:32px;text-align:center;color:#64748b;font-size:.83rem">Loading&hellip;</div>
           </div>
         </div>
       </div>
@@ -189,23 +194,21 @@
 
 </div><!-- /adminApp -->
 
-<!-- ══════════════════════════════════════════
-     MODALS
-══════════════════════════════════════════ -->
-
-<!-- CANDIDATE MODAL -->
+<!-- ════════════════════════════════════
+     CANDIDATE MODAL
+════════════════════════════════════ -->
 <div id="candidateModal" class="admin-modal-backdrop" style="display:none">
   <div class="admin-modal" style="max-width:760px">
     <h3 id="candidateModalTitle">Add Candidate</h3>
-    <button class="modal-close" onclick="closeModal('candidateModal')">✕</button>
+    <button class="modal-close" onclick="closeModal('candidateModal')">&#10005;</button>
     <div style="max-height:70vh;overflow-y:auto;padding-right:8px">
 
       <div class="form-row">
-        <div class="form-group"><label>Full Name *</label><input type="text" id="c-name" placeholder="e.g. Mangesh Kudalkar" /></div>
-        <div class="form-group"><label>Slug * (URL-safe)</label><input type="text" id="c-slug" placeholder="e.g. mangesh-kudalkar" /></div>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="c-name" placeholder="e.g. Mangesh Kudalkar"/></div>
+        <div class="form-group"><label>Slug * (URL-safe, no spaces)</label><input type="text" id="c-slug" placeholder="e.g. mangesh-kudalkar"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Party *</label><input type="text" id="c-party" placeholder="e.g. Shiv Sena" /></div>
+        <div class="form-group"><label>Party *</label><input type="text" id="c-party" placeholder="e.g. Shiv Sena"/></div>
         <div class="form-group">
           <label>Constituency *</label>
           <select id="c-constituency">
@@ -217,49 +220,54 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Education</label><input type="text" id="c-education" placeholder="e.g. 12th Pass" /></div>
-        <div class="form-group"><label>MyNeta ID</label><input type="text" id="c-mynetaId" placeholder="e.g. 1054" /></div>
+        <div class="form-group"><label>Education</label><input type="text" id="c-education" placeholder="e.g. 12th Pass"/></div>
+        <div class="form-group"><label>MyNeta Candidate ID</label><input type="text" id="c-mynetaId" placeholder="e.g. 1054"/></div>
       </div>
 
-      <!-- ASSETS (auto-total) -->
+      <!-- ASSETS with auto-total -->
       <div style="background:#0f1117;border:1px solid #2d3548;border-radius:8px;padding:16px;margin-bottom:16px">
-        <div style="font-size:.78rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">Assets (₹ in Rupees)</div>
+        <div style="font-size:.78rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px">
+          Declared Assets (enter values in Rupees)
+        </div>
         <div class="form-row">
           <div class="form-group" style="margin-bottom:0">
-            <label>Movable Assets (₹)</label>
-            <input type="number" id="c-movable" placeholder="0" min="0" oninput="updateAssetTotal()" />
+            <label>Movable Assets (&#8377;)</label>
+            <input type="number" id="c-movable" placeholder="0" min="0" oninput="updateAssetTotal()"/>
           </div>
           <div class="form-group" style="margin-bottom:0">
-            <label>Immovable Assets (₹)</label>
-            <input type="number" id="c-immovable" placeholder="0" min="0" oninput="updateAssetTotal()" />
+            <label>Immovable Assets (&#8377;)</label>
+            <input type="number" id="c-immovable" placeholder="0" min="0" oninput="updateAssetTotal()"/>
           </div>
         </div>
         <div class="auto-total-display" style="margin-top:10px">
-          Total (Auto-Calculated): <span id="assetTotalDisplay">₹ 0</span>
+          Total (Auto-Calculated): <span id="assetTotalDisplay">&#8377;0</span>
         </div>
       </div>
 
-      <div class="form-group"><label>Biography</label><textarea id="c-biography" placeholder="Brief biography…" style="min-height:80px"></textarea></div>
+      <div class="form-group">
+        <label>Biography</label>
+        <textarea id="c-biography" placeholder="Brief biography of the candidate&hellip;" style="min-height:80px"></textarea>
+      </div>
 
       <!-- POLITICAL HISTORY -->
       <div style="margin-bottom:12px">
         <div style="font-size:.78rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Political Career History</div>
         <div id="historyItems"></div>
-        <button class="add-item-btn" onclick="addHistoryItem()">＋ Add Role / Tenure</button>
+        <button class="add-item-btn" onclick="addHistoryItem()">&#43; Add Role / Tenure</button>
       </div>
 
       <!-- CRIMINAL CASES -->
       <div style="margin-bottom:12px">
         <div style="font-size:.78rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Criminal Cases</div>
         <div id="caseItems"></div>
-        <button class="add-item-btn" onclick="addCaseItem()">＋ Add Criminal Case</button>
+        <button class="add-item-btn" onclick="addCaseItem()">&#43; Add Case</button>
       </div>
 
       <!-- SOURCES -->
       <div style="margin-bottom:12px">
         <div style="font-size:.78rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Sources</div>
         <div id="sourceItems"></div>
-        <button class="add-item-btn" onclick="addSourceItem()">＋ Add Source</button>
+        <button class="add-item-btn" onclick="addSourceItem()">&#43; Add Source</button>
       </div>
 
     </div>
@@ -270,38 +278,44 @@
   </div>
 </div>
 
-<!-- PARTY MODAL -->
+<!-- ════════════════════════════════════
+     PARTY MODAL
+════════════════════════════════════ -->
 <div id="partyModal" class="admin-modal-backdrop" style="display:none">
   <div class="admin-modal">
     <h3 id="partyModalTitle">Add Party</h3>
-    <button class="modal-close" onclick="closeModal('partyModal')">✕</button>
+    <button class="modal-close" onclick="closeModal('partyModal')">&#10005;</button>
     <div style="max-height:70vh;overflow-y:auto;padding-right:4px">
       <div class="form-row">
-        <div class="form-group"><label>Party Name *</label><input type="text" id="p-name" placeholder="e.g. Bharatiya Janata Party" /></div>
-        <div class="form-group"><label>Slug *</label><input type="text" id="p-slug" placeholder="e.g. bjp" /></div>
+        <div class="form-group"><label>Party Name *</label><input type="text" id="p-name" placeholder="e.g. Bharatiya Janata Party"/></div>
+        <div class="form-group"><label>Slug *</label><input type="text" id="p-slug" placeholder="e.g. bjp"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Abbreviation *</label><input type="text" id="p-abbreviation" placeholder="e.g. BJP" /></div>
+        <div class="form-group"><label>Abbreviation *</label><input type="text" id="p-abbreviation" placeholder="e.g. BJP"/></div>
         <div class="form-group">
           <label>Type *</label>
-          <select id="p-type"><option value="National">National</option><option value="State">State</option><option value="Regional">Regional</option><option value="Alliance">Alliance</option></select>
+          <select id="p-type">
+            <option value="National">National</option>
+            <option value="State">State</option>
+            <option value="Regional">Regional</option>
+            <option value="Alliance">Alliance</option>
+          </select>
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Founded Year</label><input type="number" id="p-foundedYear" placeholder="e.g. 1980" /></div>
-        <div class="form-group"><label>Party Colour (hex)</label><input type="color" id="p-colour" value="#1e3a8a" style="height:40px;cursor:pointer" /></div>
+        <div class="form-group"><label>Founded Year</label><input type="number" id="p-foundedYear" placeholder="e.g. 1980"/></div>
+        <div class="form-group"><label>Party Colour (hex)</label><input type="color" id="p-colour" value="#1e3a8a" style="height:40px;cursor:pointer"/></div>
       </div>
-      <div class="form-group"><label>Founded By</label><input type="text" id="p-foundedBy" placeholder="e.g. Atal Bihari Vajpayee" /></div>
-      <div class="form-group"><label>Ideology</label><input type="text" id="p-ideology" placeholder="e.g. Hindu nationalism, Social conservatism" /></div>
-      <div class="form-group"><label>Election Symbol</label><input type="text" id="p-symbol" placeholder="e.g. Lotus" /></div>
-      <div class="form-group"><label>Headquarters</label><input type="text" id="p-headquarters" placeholder="e.g. New Delhi" /></div>
-      <div class="form-group"><label>Description</label><textarea id="p-description" placeholder="Brief party description…"></textarea></div>
-
-      <!-- ELECTION HISTORY -->
+      <div class="form-group"><label>Founded By</label><input type="text" id="p-foundedBy" placeholder="e.g. Atal Bihari Vajpayee"/></div>
+      <div class="form-group"><label>Ideology</label><input type="text" id="p-ideology" placeholder="e.g. Hindu nationalism, Social conservatism"/></div>
+      <div class="form-group"><label>Election Symbol</label><input type="text" id="p-symbol" placeholder="e.g. Lotus"/></div>
+      <div class="form-group"><label>Headquarters</label><input type="text" id="p-headquarters" placeholder="e.g. New Delhi"/></div>
+      <div class="form-group"><label>Description</label><textarea id="p-description" placeholder="Brief party description&hellip;"></textarea></div>
+      <!-- Election History -->
       <div style="margin-bottom:12px">
         <div style="font-size:.78rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">Election History</div>
         <div id="partyElectionItems"></div>
-        <button class="add-item-btn" onclick="addPartyElectionItem()">＋ Add Election Result</button>
+        <button class="add-item-btn" onclick="addPartyElectionItem()">&#43; Add Election Result</button>
       </div>
     </div>
     <div class="form-actions">
@@ -311,38 +325,44 @@
   </div>
 </div>
 
-<!-- REPORT REPLY MODAL -->
+<!-- ════════════════════════════════════
+     REPORT REPLY MODAL
+════════════════════════════════════ -->
 <div id="reportModal" class="admin-modal-backdrop" style="display:none">
   <div class="admin-modal" style="max-width:540px">
     <h3>Review Report</h3>
-    <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
+    <button class="modal-close" onclick="closeModal('reportModal')">&#10005;</button>
     <div id="reportModalContent"></div>
     <div class="form-actions">
       <button class="form-cancel" onclick="closeModal('reportModal')">Close</button>
-      <button class="form-save" onclick="submitReply()">Save Reply &amp; Status</button>
+      <button class="form-save" onclick="submitReply()">Save Status &amp; Reply</button>
     </div>
   </div>
 </div>
 
-<!-- NOTICE MODAL -->
+<!-- ════════════════════════════════════
+     ELECTION NOTICE MODAL
+════════════════════════════════════ -->
 <div id="noticeModal" class="admin-modal-backdrop" style="display:none">
   <div class="admin-modal" style="max-width:540px">
     <h3 id="noticeModalTitle">Add Election Notice</h3>
-    <button class="modal-close" onclick="closeModal('noticeModal')">✕</button>
-    <div class="form-group"><label>Title *</label><input type="text" id="n-title" placeholder="e.g. Maharashtra Vidhan Sabha 2024" /></div>
+    <button class="modal-close" onclick="closeModal('noticeModal')">&#10005;</button>
+    <div class="form-group"><label>Title *</label><input type="text" id="n-title" placeholder="e.g. Maharashtra Vidhan Sabha 2026"/></div>
     <div class="form-row">
-      <div class="form-group"><label>Election Date *</label><input type="text" id="n-electionDate" placeholder="e.g. 20 November 2024" /></div>
-      <div class="form-group"><label>Result Date</label><input type="text" id="n-resultDate" placeholder="e.g. 23 November 2024" /></div>
+      <div class="form-group"><label>Election Date *</label><input type="text" id="n-electionDate" placeholder="e.g. 20 November 2026"/></div>
+      <div class="form-group"><label>Result Date</label><input type="text" id="n-resultDate" placeholder="e.g. 23 November 2026"/></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Voting Start Time</label><input type="text" id="n-votingStart" placeholder="7:00 AM" /></div>
-      <div class="form-group"><label>Voting End Time</label><input type="text" id="n-votingEnd" placeholder="6:00 PM" /></div>
+      <div class="form-group"><label>Voting Start Time</label><input type="text" id="n-votingStart" placeholder="7:00 AM"/></div>
+      <div class="form-group"><label>Voting End Time</label><input type="text" id="n-votingEnd" placeholder="6:00 PM"/></div>
     </div>
-    <div class="form-group"><label>Constituency / Area</label><input type="text" id="n-constituency" placeholder="e.g. Mumbai Suburban District" /></div>
-    <div class="form-group"><label>Description (shown in marquee)</label><textarea id="n-description" placeholder="Brief notice text…"></textarea></div>
-    <div class="form-group" style="display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="n-isActive" style="width:auto" />
-      <label for="n-isActive" style="text-transform:none;font-size:.9rem;color:#e2e8f0">Set as active (shows in marquee)</label>
+    <div class="form-group"><label>Constituency / Area</label><input type="text" id="n-constituency" placeholder="e.g. Mumbai Suburban District"/></div>
+    <div class="form-group"><label>Description (shown in marquee)</label><textarea id="n-description" placeholder="Brief notice text shown in the scrolling marquee&hellip;"></textarea></div>
+    <div class="form-group" style="display:flex;align-items:center;gap:10px">
+      <input type="checkbox" id="n-isActive" style="width:auto;cursor:pointer"/>
+      <label for="n-isActive" style="text-transform:none;font-size:.9rem;color:#e2e8f0;cursor:pointer">
+        Set as <strong>Active</strong> &mdash; this notice will appear in the homepage marquee
+      </label>
     </div>
     <div class="form-actions">
       <button class="form-cancel" onclick="closeModal('noticeModal')">Cancel</button>
