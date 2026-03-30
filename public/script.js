@@ -1,12 +1,19 @@
-var API       = "http://localhost:5000/api/candidates";
+// ═══════════════════════════════════════════════════════
+//  API BASE URL
+//  When running locally:  change to "http://localhost:5000"
+//  When deployed:         keep as your Render backend URL
+// ═══════════════════════════════════════════════════════
+var API_BASE = "https://myfirstvote-backend1.onrender.com";
+var API      = API_BASE + "/api/candidates";
+
 var container = document.getElementById("candidatesContainer");
 var searchEl  = document.getElementById("search");
 var filterEl  = document.getElementById("filter");
 var countEl   = document.getElementById("resultsCount");
 
-// ── MARQUEE — loads live from DB, updates whenever admin changes the notice ──
+// ── MARQUEE — loads live from DB ──────────────────────────────────────────────
 function loadMarquee() {
-  fetch("http://localhost:5000/api/election-notice")
+  fetch(API_BASE + "/api/election-notice")
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || !data.title) return;
@@ -14,28 +21,23 @@ function loadMarquee() {
       var text = document.getElementById("marqueeText");
       if (!bar || !text) return;
 
-      // Build the marquee text as a plain string — NO innerHTML entities here.
-      // We set textContent on a span so the browser handles encoding correctly.
       var parts = [
         "\uD83D\uDCE2 " + data.title,
         "\uD83D\uDCC5 Voting Date: " + data.electionDate,
         "\u23F0 Voting Time: " + data.votingStart + " \u2013 " + data.votingEnd,
         "\uD83D\uDCCD " + data.constituency
       ];
-      if (data.resultDate) {
-        parts.push("\uD83D\uDCCA Result Date: " + data.resultDate);
-      }
+      if (data.resultDate) parts.push("\uD83D\uDCCA Result Date: " + data.resultDate);
       parts.push("\u2139\uFE0F " + data.description);
       parts.push("\uD83D\uDDF3\uFE0F Exercise your right to vote!");
 
-      // Use innerHTML with escaped values to render safely
       text.innerHTML = parts.map(function(p) { return escHtml(p); }).join("&nbsp;&nbsp;&#9679;&nbsp;&nbsp;");
       bar.style.display = "block";
     })
-    .catch(function() { /* marquee is optional — fail silently */ });
+    .catch(function() { /* marquee is optional */ });
 }
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 function debounce(fn, ms) {
   var t;
   return function() {
@@ -70,7 +72,7 @@ function careerSummary(history) {
   return (new Date().getFullYear() - first) + "+ yrs in politics";
 }
 
-// ── RENDER CANDIDATE CARDS ────────────────────────────────────────────────────
+// ── RENDER CARDS ──────────────────────────────────────────────────────────────
 function displayCandidates(data) {
   container.innerHTML = "";
   if (countEl) countEl.textContent = data.length + " candidate" + (data.length !== 1 ? "s" : "") + " found";
@@ -101,12 +103,10 @@ function displayCandidates(data) {
           "</div>" +
           (total ? "<div class='card-meta-item'>" +
             "<svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><rect x='2' y='7' width='20' height='14' rx='2'/><path d='M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2'/></svg>" +
-            "Total Assets: " + formatMoney(total) +
-          "</div>" : "") +
+            "Total Assets: " + formatMoney(total) + "</div>" : "") +
           (yearStr ? "<div class='card-meta-item'>" +
             "<svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><polyline points='12 6 12 12 16 14'/></svg>" +
-            escHtml(yearStr) +
-          "</div>" : "") +
+            escHtml(yearStr) + "</div>" : "") +
         "</div>" +
         "<div class='card-cases " + (cases > 0 ? "has-cases" : "clean") + "'>" +
           (cases > 0
@@ -127,7 +127,7 @@ function displayCandidates(data) {
   });
 }
 
-// ── FETCH HELPERS ─────────────────────────────────────────────────────────────
+// ── FETCH ─────────────────────────────────────────────────────────────────────
 function showLoading() {
   container.innerHTML = "<div class='spinner-wrap'><div class='spinner'></div><p>Loading candidates&hellip;</p></div>";
 }
@@ -135,14 +135,12 @@ function showLoading() {
 function loadCandidates() {
   showLoading();
   var constituency = filterEl.value;
-  var url = constituency
-    ? API + "?constituency=" + encodeURIComponent(constituency)
-    : API;
+  var url = constituency ? API + "?constituency=" + encodeURIComponent(constituency) : API;
   fetch(url)
     .then(function(r) { return r.json(); })
     .then(displayCandidates)
     .catch(function(e) {
-      container.innerHTML = "<div class='empty-state'><h2>Could not load data</h2><p>" + escHtml(e.message) + "</p></div>";
+      container.innerHTML = "<div class='empty-state'><h2>Could not load data</h2><p>" + escHtml(e.message) + "</p><p style='font-size:.8rem;color:#999;margin-top:8px'>The server may be waking up (Render free tier). Please wait 30 seconds and refresh.</p></div>";
     });
 }
 
@@ -152,9 +150,7 @@ function searchCandidates(text) {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       var constituency = filterEl.value;
-      if (constituency) {
-        data = data.filter(function(c) { return c.constituency === constituency; });
-      }
+      if (constituency) data = data.filter(function(c) { return c.constituency === constituency; });
       displayCandidates(data);
     })
     .catch(function(e) {
@@ -164,20 +160,14 @@ function searchCandidates(text) {
 
 // ── EVENTS ────────────────────────────────────────────────────────────────────
 var debouncedSearch = debounce(function(val) {
-  if (val.trim()) {
-    searchCandidates(val.trim());
-  } else {
-    loadCandidates();
-  }
+  if (val.trim()) searchCandidates(val.trim());
+  else loadCandidates();
 }, 350);
 
 searchEl.addEventListener("input", function(e) { debouncedSearch(e.target.value); });
 filterEl.addEventListener("change", function() {
-  if (searchEl.value.trim()) {
-    searchCandidates(searchEl.value.trim());
-  } else {
-    loadCandidates();
-  }
+  if (searchEl.value.trim()) searchCandidates(searchEl.value.trim());
+  else loadCandidates();
 });
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
