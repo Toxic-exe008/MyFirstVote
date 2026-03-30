@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Candidate Profile — VoteSmart Mumbai</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="nav-logo" style="text-decoration:none">Vote<span>Smart</span></a>
+      <a href="index.html" class="nav-link">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </a>
+      <a href="parties.html" class="nav-link">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l8-4 8 4v14M9 21V11h6v10"/></svg>
+        <span>Parties</span>
+      </a>
+      <a href="voters-guide.html" class="nav-link">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+        <span>Voter's Guide</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO (populated by JS) -->
+  <div class="profile-hero">
+    <div class="profile-hero-inner">
+      <button class="back-btn" onclick="history.back()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to all candidates
+      </button>
+      <div id="profileHero"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE BODY -->
+  <main id="profile"></main>
+
+  <footer>
+    &copy; 2024 VoteSmart Mumbai &mdash; Data from public ECI affidavits &nbsp;|&nbsp;
+    <a href="voters-guide.html">Voter's Guide</a> &nbsp;|&nbsp;
+    <a href="parties.html">Parties</a>
+  </footer>
+
+  <script src="candidate.js"></script>
+</body>
+</html>
