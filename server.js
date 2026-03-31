@@ -10,30 +10,29 @@ const app = express();
 // ═══════════════════════════════════════════════
 app.use(express.json());
 
-// ── CORS FIX ─────────────────────────────────────────────────────────────────
-// Express 5 / Node 22 use path-to-regexp v8 which does NOT accept bare "*".
-// FIX: Add preflightContinue:false + optionsSuccessStatus:204 so the cors()
-//      middleware itself handles all OPTIONS preflight — no app.options() call needed.
+// ── CORS ─────────────────────────────────────────────────────────────────────
 app.use(cors({
   origin:               "*",
   methods:              ["GET","POST","PUT","DELETE","OPTIONS"],
   allowedHeaders:       ["Content-Type","x-admin-key"],
   credentials:          false,
-  preflightContinue:    false,    // cors() responds to OPTIONS automatically
-  optionsSuccessStatus: 204       // some browsers need 204 not 200 for preflight
+  preflightContinue:    false,
+  optionsSuccessStatus: 204
 }));
 
-app.use(express.static(path.join(__dirname, "public")));
+// ── STATIC FILES ─────────────────────────────────────────────────────────────
+// Serve HTML/CSS/JS from the repo root (same folder as server.js).
+// GitHub Pages also serves from the repo root — both stay in sync.
+app.use(express.static(path.join(__dirname)));
 
 // ═══════════════════════════════════════════════
 // DATABASE
-// ───────────────────────────────────────────────
-// LOCAL:  uses mongodb://127.0.0.1:27017/myfirstvoteDB  (your laptop)
-// RENDER: uses MONGODB_URI environment variable (MongoDB Atlas free cluster)
+// ─────────────────────────────────────────────
+// LOCAL:  mongodb://127.0.0.1:27017/myfirstvoteDB
+// RENDER: MONGODB_URI environment variable  →  MongoDB Atlas
 //
-// MongoDB stores data PERMANENTLY on disk.
-// Stopping/starting "node server.js" NEVER resets data.
-// Only running "node seed.js" wipes and reseeds.
+// Set MONGODB_URI in Render's Environment settings:
+//   mongodb+srv://TOXIC:TOXIC%401120@cluster0.fjg4ntg.mongodb.net/myfirstvoteDB?retryWrites=true&w=majority&appName=Cluster0
 // ═══════════════════════════════════════════════
 const MONGO_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/myfirstvoteDB";
 
@@ -85,7 +84,6 @@ async function audit(action, entity, entityId, entityName, details) {
 
 // ═══════════════════════════════════════════════
 // ASSET TOTAL HELPER
-// findByIdAndUpdate skips Mongoose pre-save hooks, so we compute manually.
 // ═══════════════════════════════════════════════
 function calcTotal(assets) {
   if (!assets) return { movable: 0, immovable: 0, total: 0 };
@@ -98,7 +96,6 @@ function calcTotal(assets) {
 // PUBLIC ROUTES
 // ═══════════════════════════════════════════════
 
-// GET ALL CANDIDATES  (optional ?constituency= filter)
 app.get("/api/candidates", async (req, res) => {
   try {
     const filter = {};
@@ -107,7 +104,7 @@ app.get("/api/candidates", async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// SEARCH  ⚠️  MUST be defined BEFORE /:slug
+// ⚠️  MUST be before /:slug
 app.get("/api/candidates/search/:text", async (req, res) => {
   try {
     const rx   = { $regex: req.params.text, $options: "i" };
@@ -118,7 +115,6 @@ app.get("/api/candidates/search/:text", async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET ONE BY SLUG
 app.get("/api/candidates/:slug", async (req, res) => {
   try {
     const c = await Candidate.findOne({ slug: req.params.slug });
@@ -127,7 +123,6 @@ app.get("/api/candidates/:slug", async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// SUBMIT REPORT (public — no auth needed)
 app.post("/api/reports", async (req, res) => {
   try {
     const { pageId, pageType, message, entitySlug } = req.body;
@@ -151,19 +146,17 @@ app.post("/api/reports", async (req, res) => {
       message:       message.trim(),
       candidateName: candidateName,
       entitySlug:    resolvedSlug
-    }).save(); // pre-save hook generates reportId
+    }).save();
     res.status(201).json({ success: true, reportId: report.reportId, report });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET ALL PARTIES (public)
 app.get("/api/parties", async (req, res) => {
   try {
     res.json(await Party.find({ isActive: true }).sort({ name: 1 }));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET ONE PARTY BY SLUG (public)
 app.get("/api/parties/:slug", async (req, res) => {
   try {
     const p = await Party.findOne({ slug: req.params.slug });
@@ -172,7 +165,6 @@ app.get("/api/parties/:slug", async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// GET ACTIVE ELECTION NOTICE (public — used by homepage marquee)
 app.get("/api/election-notice", async (req, res) => {
   try {
     const notice = await ElectionNotice
@@ -183,7 +175,7 @@ app.get("/api/election-notice", async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════
-// ADMIN ROUTES  (all require x-admin-key header)
+// ADMIN ROUTES
 // ═══════════════════════════════════════════════
 
 app.post("/api/admin/login", (req, res) => {
