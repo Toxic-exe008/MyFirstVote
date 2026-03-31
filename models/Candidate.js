@@ -43,7 +43,7 @@ const candidateSchema = new mongoose.Schema({
 // ── Pre-save: always compute total from movable + immovable ──────────────────
 // This fires on every new Candidate().save() call.
 // findByIdAndUpdate bypasses this — so server.js calcTotal() handles that case.
-candidateSchema.pre("save", function(next) {
+candidateSchema.pre("save", async function() {
   if (this.assets) {
     const m = Number(this.assets.movable)   || 0;
     const i = Number(this.assets.immovable) || 0;
@@ -51,8 +51,8 @@ candidateSchema.pre("save", function(next) {
     this.assets.immovable = i;
     this.assets.total     = m + i;
   }
-  next();
-});
+  });
 
 candidateSchema.index({ name: "text", party: "text", constituency: "text" });
 module.exports = mongoose.model("Candidate", candidateSchema);
+

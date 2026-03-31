@@ -28,11 +28,11 @@ const reportSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Auto-generate reportId on first save if not already set
-reportSchema.pre("save", function(next) {
+reportSchema.pre("save", async function() {
   if (!this.reportId) {
     this.reportId = generateReportId(this.entitySlug, this.pageType);
   }
-  next();
-});
+  });
 
 module.exports = mongoose.model("Report", reportSchema);
+
