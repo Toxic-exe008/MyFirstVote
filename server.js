@@ -23,7 +23,7 @@ app.use(cors({
 // ── STATIC FILES ─────────────────────────────────────────────────────────────
 // Serve HTML/CSS/JS from the repo root (same folder as server.js).
 // GitHub Pages also serves from the repo root — both stay in sync.
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, "docs")));
 
 // ═══════════════════════════════════════════════
 // DATABASE
