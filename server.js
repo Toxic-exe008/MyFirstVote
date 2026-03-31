@@ -10,30 +10,39 @@ const app = express();
 // ═══════════════════════════════════════════════
 app.use(express.json());
 
-// CORS: must explicitly allow x-admin-key and handle OPTIONS preflight
-const corsOptions = {
-  origin:         "*",
-  methods:        ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","x-admin-key"],
-  credentials:    false
-};
-app.use(cors(corsOptions));
-// Respond to all OPTIONS preflight requests immediately
-app.options("*", cors(corsOptions));
+// ── CORS FIX ─────────────────────────────────────────────────────────────────
+// Express 5 / Node 22 use path-to-regexp v8 which does NOT accept bare "*".
+// FIX: Add preflightContinue:false + optionsSuccessStatus:204 so the cors()
+//      middleware itself handles all OPTIONS preflight — no app.options() call needed.
+app.use(cors({
+  origin:               "*",
+  methods:              ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders:       ["Content-Type","x-admin-key"],
+  credentials:          false,
+  preflightContinue:    false,    // cors() responds to OPTIONS automatically
+  optionsSuccessStatus: 204       // some browsers need 204 not 200 for preflight
+}));
 
 app.use(express.static(path.join(__dirname, "public")));
 
 // ═══════════════════════════════════════════════
 // DATABASE
 // ───────────────────────────────────────────────
+// LOCAL:  uses mongodb://127.0.0.1:27017/myfirstvoteDB  (your laptop)
+// RENDER: uses MONGODB_URI environment variable (MongoDB Atlas free cluster)
+//
 // MongoDB stores data PERMANENTLY on disk.
-// Starting/stopping "node server.js" NEVER resets data.
-// Only running "node seed.js" wipes and reseeds the database.
-// All admin panel changes (add/edit/delete) are instantly permanent.
+// Stopping/starting "node server.js" NEVER resets data.
+// Only running "node seed.js" wipes and reseeds.
 // ═══════════════════════════════════════════════
-mongoose.connect("mongodb://127.0.0.1:27017/myfirstvoteDB")
-  .then(() => console.log("✅  MongoDB connected  →  myfirstvoteDB"))
-  .catch(err => { console.error("❌  MongoDB error:", err.message); process.exit(1); });
+const MONGO_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/myfirstvoteDB";
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("✅  MongoDB connected  →  " + MONGO_URI.split("@").pop()))
+  .catch(err => {
+    console.error("❌  MongoDB connection failed:", err.message);
+    process.exit(1);
+  });
 
 // ═══════════════════════════════════════════════
 // MODELS
@@ -65,9 +74,9 @@ async function audit(action, entity, entityId, entityName, details) {
     await AuditLog.create({
       action,
       entity,
-      entityId:   String(entityId || ""),
+      entityId:   String(entityId  || ""),
       entityName: String(entityName || ""),
-      details:    String(details || "")
+      details:    String(details    || "")
     });
   } catch (e) {
     console.error("Audit write error:", e.message);
@@ -76,8 +85,7 @@ async function audit(action, entity, entityId, entityName, details) {
 
 // ═══════════════════════════════════════════════
 // ASSET TOTAL HELPER
-// findByIdAndUpdate skips Mongoose pre-save hooks, so we manually
-// compute total here before passing the update to MongoDB.
+// findByIdAndUpdate skips Mongoose pre-save hooks, so we compute manually.
 // ═══════════════════════════════════════════════
 function calcTotal(assets) {
   if (!assets) return { movable: 0, immovable: 0, total: 0 };
@@ -99,11 +107,13 @@ app.get("/api/candidates", async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// SEARCH  ⚠️  must be defined BEFORE /:slug
+// SEARCH  ⚠️  MUST be defined BEFORE /:slug
 app.get("/api/candidates/search/:text", async (req, res) => {
   try {
     const rx   = { $regex: req.params.text, $options: "i" };
-    const data = await Candidate.find({ $or: [{ name: rx }, { party: rx }, { constituency: rx }] });
+    const data = await Candidate.find({
+      $or: [{ name: rx }, { party: rx }, { constituency: rx }]
+    });
     res.json(data);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -117,17 +127,15 @@ app.get("/api/candidates/:slug", async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// SUBMIT REPORT (public)
+// SUBMIT REPORT (public — no auth needed)
 app.post("/api/reports", async (req, res) => {
   try {
     const { pageId, pageType, message, entitySlug } = req.body;
     if (!message || !message.trim()) {
       return res.status(400).json({ error: "Message is required" });
     }
-
     let candidateName = "";
     let resolvedSlug  = entitySlug || "";
-
     if (pageId) {
       if (pageType === "Party") {
         const p = await Party.findById(pageId).lean();
@@ -137,15 +145,13 @@ app.post("/api/reports", async (req, res) => {
         if (c) { candidateName = c.name; resolvedSlug = c.slug; }
       }
     }
-
     const report = await new Report({
       pageId:        pageId || null,
       pageType:      pageType || "Candidate",
       message:       message.trim(),
       candidateName: candidateName,
       entitySlug:    resolvedSlug
-    }).save(); // triggers pre-save → generates reportId
-
+    }).save(); // pre-save hook generates reportId
     res.status(201).json({ success: true, reportId: report.reportId, report });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -169,7 +175,6 @@ app.get("/api/parties/:slug", async (req, res) => {
 // GET ACTIVE ELECTION NOTICE (public — used by homepage marquee)
 app.get("/api/election-notice", async (req, res) => {
   try {
-    // Get the most recently updated active notice
     const notice = await ElectionNotice
       .findOne({ isActive: true })
       .sort({ updatedAt: -1 });
@@ -181,14 +186,12 @@ app.get("/api/election-notice", async (req, res) => {
 // ADMIN ROUTES  (all require x-admin-key header)
 // ═══════════════════════════════════════════════
 
-// ADMIN LOGIN CHECK
 app.post("/api/admin/login", (req, res) => {
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) return res.json({ success: true });
   res.status(401).json({ error: "Invalid password" });
 });
 
-// STATS DASHBOARD
 app.get("/api/admin/stats", adminAuth, async (req, res) => {
   try {
     const [candidates, parties, reports, pendingReports, logs] = await Promise.all([
@@ -206,9 +209,9 @@ app.get("/api/admin/stats", adminAuth, async (req, res) => {
 
 app.post("/api/admin/candidates", adminAuth, async (req, res) => {
   try {
-    const body     = Object.assign({}, req.body);
-    body.assets    = calcTotal(body.assets);             // ensure total is set
-    const c        = await new Candidate(body).save();   // pre-save hook also runs
+    const body  = Object.assign({}, req.body);
+    body.assets = calcTotal(body.assets);
+    const c     = await new Candidate(body).save();
     await audit("CREATE", "Candidate", c._id, c.name, "Created in " + c.constituency);
     res.status(201).json(c);
   } catch (e) { res.status(400).json({ error: e.message }); }
@@ -217,11 +220,9 @@ app.post("/api/admin/candidates", adminAuth, async (req, res) => {
 app.put("/api/admin/candidates/:id", adminAuth, async (req, res) => {
   try {
     const body  = Object.assign({}, req.body);
-    body.assets = calcTotal(body.assets);   // pre-save hook doesn't run on findByIdAndUpdate
+    body.assets = calcTotal(body.assets);
     const c = await Candidate.findByIdAndUpdate(
-      req.params.id,
-      { $set: body },
-      { new: true, runValidators: true }
+      req.params.id, { $set: body }, { new: true, runValidators: true }
     );
     if (!c) return res.status(404).json({ error: "Candidate not found" });
     await audit("UPDATE", "Candidate", c._id, c.name, "Updated candidate record");
@@ -243,7 +244,7 @@ app.delete("/api/admin/candidates/:id", adminAuth, async (req, res) => {
 app.post("/api/admin/parties", adminAuth, async (req, res) => {
   try {
     const p = await new Party(req.body).save();
-    await audit("CREATE", "Party", p._id, p.name, "Created party [" + p.abbreviation + "]");
+    await audit("CREATE", "Party", p._id, p.name, "Created [" + p.abbreviation + "]");
     res.status(201).json(p);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
@@ -251,12 +252,10 @@ app.post("/api/admin/parties", adminAuth, async (req, res) => {
 app.put("/api/admin/parties/:id", adminAuth, async (req, res) => {
   try {
     const p = await Party.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true, runValidators: true }
+      req.params.id, { $set: req.body }, { new: true, runValidators: true }
     );
     if (!p) return res.status(404).json({ error: "Party not found" });
-    await audit("UPDATE", "Party", p._id, p.name, "Updated party record");
+    await audit("UPDATE", "Party", p._id, p.name, "Updated party");
     res.json(p);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
@@ -284,7 +283,7 @@ app.put("/api/admin/reports/:id", adminAuth, async (req, res) => {
   try {
     const { status, adminReply } = req.body;
     const update = {};
-    if (status)                            update.status     = status;
+    if (status) update.status = status;
     if (adminReply !== undefined && adminReply !== null) {
       update.adminReply = adminReply;
       update.repliedAt  = new Date();
@@ -292,7 +291,7 @@ app.put("/api/admin/reports/:id", adminAuth, async (req, res) => {
     const r = await Report.findByIdAndUpdate(req.params.id, { $set: update }, { new: true });
     if (!r) return res.status(404).json({ error: "Report not found" });
     await audit("REPLY", "Report", r._id, r.reportId || "Report",
-      "Status → " + status + (adminReply ? " + reply added" : ""));
+      "Status: " + status + (adminReply ? " + reply added" : ""));
     res.json(r);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
@@ -306,7 +305,7 @@ app.delete("/api/admin/reports/:id", adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── ELECTION NOTICE ADMIN ────────────────────────────────────────────────────
+// ── ELECTION NOTICES ADMIN ───────────────────────────────────────────────────
 
 app.get("/api/admin/election-notices", adminAuth, async (req, res) => {
   try {
@@ -316,7 +315,6 @@ app.get("/api/admin/election-notices", adminAuth, async (req, res) => {
 
 app.post("/api/admin/election-notices", adminAuth, async (req, res) => {
   try {
-    // Deactivate all others when creating a new active notice
     if (req.body.isActive) {
       await ElectionNotice.updateMany({}, { $set: { isActive: false } });
     }
@@ -328,21 +326,17 @@ app.post("/api/admin/election-notices", adminAuth, async (req, res) => {
 
 app.put("/api/admin/election-notices/:id", adminAuth, async (req, res) => {
   try {
-    // If setting this notice as active, deactivate all others first
     if (req.body.isActive) {
       await ElectionNotice.updateMany(
-        { _id: { $ne: req.params.id } },
-        { $set: { isActive: false } }
+        { _id: { $ne: req.params.id } }, { $set: { isActive: false } }
       );
     }
     const n = await ElectionNotice.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
+      req.params.id, { $set: req.body }, { new: true }
     );
     if (!n) return res.status(404).json({ error: "Notice not found" });
     await audit("UPDATE", "ElectionNotice", n._id, n.title,
-      "Updated notice — election date: " + n.electionDate);
+      "Updated — date: " + n.electionDate);
     res.json(n);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
@@ -351,7 +345,7 @@ app.delete("/api/admin/election-notices/:id", adminAuth, async (req, res) => {
   try {
     const n = await ElectionNotice.findByIdAndDelete(req.params.id);
     if (!n) return res.status(404).json({ error: "Notice not found" });
-    await audit("DELETE", "ElectionNotice", n._id, n.title, "Deleted election notice");
+    await audit("DELETE", "ElectionNotice", n._id, n.title, "Deleted notice");
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -370,12 +364,12 @@ app.get("/api/admin/audit-logs", adminAuth, async (req, res) => {
 // ═══════════════════════════════════════════════
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log("-------------------------------------------");
+  console.log("─────────────────────────────────────────");
   console.log("  MyFirstVote  →  http://localhost:" + PORT);
   console.log("  Admin Panel  →  http://localhost:" + PORT + "/admin.html");
-  console.log("  Admin pass   →  " + ADMIN_PASSWORD);
-  console.log("-------------------------------------------");
-  console.log("  MongoDB data is PERMANENT — restarts do");
-  console.log("  NOT reset data. Only seed.js resets it.");
-  console.log("-------------------------------------------");
+  console.log("  Admin Pass   →  " + ADMIN_PASSWORD);
+  console.log("  DB URI       →  " + (MONGO_URI.includes("@")
+    ? "Atlas: " + MONGO_URI.split("@").pop()
+    : "Local: myfirstvoteDB"));
+  console.log("─────────────────────────────────────────");
 });
