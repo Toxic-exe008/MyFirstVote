@@ -93,7 +93,7 @@ function calcTotal(assets) {
 }
 
 // ═══════════════════════════════════════════════
-// PUBLIC ROUTES
+// docs ROUTES
 // ═══════════════════════════════════════════════
 
 app.get("/api/candidates", async (req, res) => {
