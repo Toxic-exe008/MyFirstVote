@@ -29,7 +29,10 @@
 
   <!-- MARQUEE — populated from DB by script.js -->
   <div class="marquee-bar" id="marqueeBar" style="display:none">
-    <marquee id="marqueeText" behavior="scroll" direction="left" scrollamount="5"></marquee>
+    <div class="marquee-track">
+      <div class="marquee-content" id="marqueeText"></div>
+      <div class="marquee-content marquee-clone" id="marqueeClone"></div>
+    </div>
   </div>
 
   <!-- HEADER -->
