@@ -1,5 +1,9 @@
-var API  = "http://localhost:5000/api/parties";
-var grid = document.getElementById("partiesGrid");
+// ═══════════════════════════════════════════════════════
+//  API BASE URL — points to your Render backend
+// ═══════════════════════════════════════════════════════
+var API_BASE = "https://myfirstvote-backend1.onrender.com";
+var API      = API_BASE + "/api/parties";
+var grid     = document.getElementById("partiesGrid");
 
 function escHtml(s) {
   return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -20,15 +24,12 @@ function render(parties) {
   grid.innerHTML = parties.map(function(p, i) {
     var colour = p.colour || "#1e3a8a";
 
-    // Abbreviation: strip any characters that are not letters/numbers/hyphen
-    // so "NCP(SP)" → "NCP-SP", length 6 → fits emblem
     var abbr = (p.abbreviation || "?")
       .toUpperCase()
-      .replace(/[()]/g, "")      // remove parentheses
+      .replace(/[()]/g, "")
       .trim();
     var len  = abbr.length;
 
-    // Election history rows
     var electionsHtml;
     if (p.electionHistory && p.electionHistory.length) {
       electionsHtml = p.electionHistory
@@ -50,7 +51,6 @@ function render(parties) {
 
     return "<div class='party-card' style='animation-delay:" + (i * 80) + "ms'>" +
 
-      // Card top — emblem + name/badge
       "<div class='party-card-top'>" +
         "<div class='party-emblem' data-len='" + len + "' style='background:" + escHtml(colour) + "'>" +
           escHtml(abbr) +
@@ -61,7 +61,6 @@ function render(parties) {
         "</div>" +
       "</div>" +
 
-      // Meta info
       "<div class='party-meta'>" +
         (p.foundedYear ? "<div class='party-meta-row'><strong>Founded</strong>" + p.foundedYear + "</div>" : "") +
         (p.foundedBy   ? "<div class='party-meta-row'><strong>Founded by</strong>" + escHtml(p.foundedBy) + "</div>" : "") +
@@ -70,10 +69,8 @@ function render(parties) {
         (p.headquarters? "<div class='party-meta-row'><strong>HQ</strong>" + escHtml(p.headquarters) + "</div>" : "") +
       "</div>" +
 
-      // Description
       (p.description ? "<div class='party-desc'>" + escHtml(p.description) + "</div>" : "") +
 
-      // Election history
       "<div class='party-elections'>" +
         "<div class='party-elections-header'>Election History</div>" +
         electionsHtml +
