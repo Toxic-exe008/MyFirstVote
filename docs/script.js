@@ -31,7 +31,10 @@ function loadMarquee() {
       parts.push("\u2139\uFE0F " + data.description);
       parts.push("\uD83D\uDDF3\uFE0F Exercise your right to vote!");
 
-      text.innerHTML = parts.map(function(p) { return escHtml(p); }).join("&nbsp;&nbsp;&#9679;&nbsp;&nbsp;");
+      var html = parts.map(function(p) { return escHtml(p); }).join("&nbsp;&nbsp;&#9679;&nbsp;&nbsp;");
+      text.innerHTML = html;
+      var clone = document.getElementById("marqueeClone");
+      if (clone) clone.innerHTML = html;
       bar.style.display = "block";
     })
     .catch(function() { /* marquee is optional */ });
